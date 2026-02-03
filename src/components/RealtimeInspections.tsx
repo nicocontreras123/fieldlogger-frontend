@@ -1,6 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../lib/db';
 
 // Use environment variable for API URL (Railway compatible)
 const API_URL = (import.meta as unknown as { env: { VITE_API_URL?: string } }).env?.VITE_API_URL || 'http://localhost:3000';
@@ -46,26 +44,13 @@ export default function RealtimeInspections() {
     const reconnectTimeoutRef = useRef<number | null>(null);
     const prevInspectionsRef = useRef<Inspection[]>([]);
 
-    // Get local pending inspections from Dexie for immediate display
-    const localInspections = useLiveQuery(() =>
-        db.inspections.where('status').equals('pending').toArray()
-    );
-
-    // Merge remote and local inspections, giving priority to local ones
+    // Only show inspections from the server (SSE) - these are the synced ones from DB
+    // Local inspections are NOT shown in this view, only remote synced ones
     const inspections: Inspection[] = (() => {
-        const local = localInspections || [];
         const remote = remoteInspections || [];
 
-        // Create a map of remote inspections by ID
-        const remoteMap = new Map(remote.map(i => [i.id, i]));
-
-        // Add local inspections (they take precedence or are additional)
-        local.forEach(localInspection => {
-            remoteMap.set(localInspection.id, localInspection);
-        });
-
-        // Convert back to array and sort by createdAt descending
-        return Array.from(remoteMap.values()).sort((a, b) =>
+        // Sort by createdAt descending
+        return remote.sort((a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
     })();

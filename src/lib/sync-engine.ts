@@ -15,16 +15,28 @@ const API_URL = (import.meta as unknown as { env: { VITE_API_URL?: string } }).e
  */
 async function syncInspection(inspection: Inspection): Promise<boolean> {
     try {
+        // Prepare payload - exclude 'status' to let backend decide (always 'synced' in DB)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { status, ...inspectionWithoutStatus } = inspection;
+
+        const payload = {
+            ...inspectionWithoutStatus,
+            // Ensure createdAt is preserved from original
+            createdAt: inspection.createdAt,
+            // syncedAt is set by backend when saving
+        };
+
         const response = await fetch(`${API_URL}/inspections`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(inspection),
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
-            console.error('Failed to sync inspection:', inspection.id);
+            const errorText = await response.text();
+            console.error('Failed to sync inspection:', inspection.id, errorText);
             return false;
         }
 
