@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
+import { Wifi, WifiOff, RotateCw, CloudUpload, CheckCircle2 } from 'lucide-react';
 
 /**
  * NetworkStatusBadge Component
@@ -8,6 +9,7 @@ import { db } from '../lib/db';
  * Displays real-time network status and pending sync count.
  * Shows different states: Online, Offline, Syncing
  * Enhanced with eye-catching animations and positioning.
+ * Optimized for Mobile with compact FAB design.
  */
 export default function NetworkStatusBadge() {
     const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -51,9 +53,9 @@ export default function NetworkStatusBadge() {
             return {
                 label: 'Sincronizando',
                 shortLabel: 'Sync',
-                color: 'from-yellow-500 to-orange-500',
-                shadowColor: 'shadow-yellow-500/50',
-                icon: '🔄',
+                color: 'from-blue-500 to-indigo-600',
+                shadowColor: 'shadow-blue-500/50',
+                icon: <RotateCw className="w-5 h-5 animate-spin" />,
                 pulse: true,
                 glow: true,
             };
@@ -63,21 +65,21 @@ export default function NetworkStatusBadge() {
             return {
                 label: 'Sin Conexión',
                 shortLabel: 'Offline',
-                color: 'from-red-500 to-red-700',
-                shadowColor: 'shadow-red-500/50',
-                icon: '📡',
+                color: 'from-slate-600 to-slate-800', // Darker gray/black for offline/airplane
+                shadowColor: 'shadow-slate-500/50',
+                icon: <WifiOff className="w-5 h-5" />,
                 pulse: false,
-                glow: true,
+                glow: false,
             };
         }
 
-        if (pendingCount && pendingCount > 0) {
+        if (pendingCount !== undefined && pendingCount > 0) {
             return {
                 label: `${pendingCount} Pendiente${pendingCount > 1 ? 's' : ''}`,
-                shortLabel: `${pendingCount} Pend.`,
-                color: 'from-orange-500 to-red-500',
+                shortLabel: `${pendingCount}`,
+                color: 'from-orange-500 to-amber-500',
                 shadowColor: 'shadow-orange-500/50',
-                icon: '⏳',
+                icon: <CloudUpload className="w-5 h-5 animate-bounce" />,
                 pulse: true,
                 glow: true,
             };
@@ -86,9 +88,9 @@ export default function NetworkStatusBadge() {
         return {
             label: 'En Línea',
             shortLabel: 'Online',
-            color: 'from-green-500 to-emerald-600',
+            color: 'from-emerald-500 to-green-600',
             shadowColor: 'shadow-green-500/50',
-            icon: '✓',
+            icon: <Wifi className="w-5 h-5" />,
             pulse: false,
             glow: false,
         };
@@ -98,82 +100,93 @@ export default function NetworkStatusBadge() {
 
     return (
         <div
-            className="fixed top-16 right-2 sm:top-4 sm:right-4 z-50 flex flex-col items-end"
+            className="fixed top-4 right-4 z-50 flex flex-col items-end"
             onMouseEnter={() => setShowDetails(true)}
             onMouseLeave={() => setShowDetails(false)}
+            onClick={() => setShowDetails(!showDetails)}
         >
-            {/* Main Badge */}
+            {/* Main Badge - Compact Button */}
             <div
                 className={`
-                    bg-gradient-to-r ${state.color} 
+                    bg-gradient-to-br ${state.color} 
                     text-white 
-                    px-3 sm:px-4 py-2 sm:py-3 
+                    p-3 sm:px-4 sm:py-2 
                     rounded-full 
                     ${state.shadowColor} shadow-lg 
-                    flex items-center gap-2 
+                    flex items-center justify-center gap-2 
                     transition-all duration-300 
                     cursor-pointer
-                    border-2 border-white/20
-                    backdrop-blur-sm
-                    ${state.glow ? 'animate-pulse' : ''}
-                    hover:scale-105 hover:shadow-xl
-                    min-w-fit
+                    border border-white/20
+                    backdrop-blur-md
+                    ${state.glow ? 'ring-2 ring-white/30' : ''}
+                    hover:scale-110 active:scale-95
+                    min-w-[44px] min-h-[44px] sm:min-w-fit sm:min-h-fit
                 `}
             >
-                {/* Icon with animation */}
-                <span className={`text-lg sm:text-xl ${state.pulse ? 'animate-spin' : ''}`}>
+                {/* Icon */}
+                <span className="filter drop-shadow-sm flex items-center justify-center">
                     {state.icon}
                 </span>
 
-                {/* Label - hidden on very small screens */}
-                <span className="font-bold text-sm sm:text-base hidden xs:inline">
-                    <span className="hidden sm:inline">{state.label}</span>
-                    <span className="sm:hidden">{state.shortLabel}</span>
+                {/* Label - Hidden on mobile unless syncing/pending */}
+                <span className={`
+                    font-bold text-sm hidden sm:inline
+                    ${(isSyncing || (pendingCount || 0) > 0) ? 'inline-block' : ''}
+                `}>
+                    {state.label}
                 </span>
 
-                {/* Pending count badge */}
+                {/* Counter for mobile - Mini badge */}
                 {pendingCount !== undefined && pendingCount > 0 && (
-                    <span className="bg-white text-orange-600 rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs font-bold animate-bounce">
+                    <span className="absolute -top-1 -right-1 sm:static sm:top-auto sm:right-auto bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold border-2 border-slate-900 sm:border-none ring-1 ring-white/20">
                         {pendingCount}
                     </span>
                 )}
-
-                {/* Live indicator dot */}
-                <span className={`w-2 h-2 rounded-full bg-white ${isOnline ? 'animate-pulse' : ''}`} />
             </div>
 
-            {/* Connection details tooltip - shows on hover */}
+            {/* Connection details tooltip */}
             <div
                 className={`
-                    mt-2 bg-slate-800/95 backdrop-blur-sm 
-                    text-white text-xs sm:text-sm 
-                    px-4 py-3 rounded-xl 
-                    shadow-2xl border border-slate-600
-                    transition-all duration-300
-                    ${showDetails ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}
-                    max-w-[200px] sm:max-w-[250px]
+                    mt-3 mr-1
+                    bg-slate-900/90 backdrop-blur-xl 
+                    text-white text-sm 
+                    px-4 py-4 rounded-2xl
+                    shadow-2xl border border-slate-700/50
+                    transition-all duration-300 origin-top-right
+                    ${showDetails ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}
+                    w-64 z-50
                 `}
             >
-                <div className="flex items-center gap-2 mb-2">
-                    <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-400 animate-pulse' : 'bg-red-400'} shadow-lg`} />
-                    <span className="font-semibold">{isOnline ? 'Conectado a internet' : 'Modo offline'}</span>
+                <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
+                    <div className={`p-2 rounded-full bg-white/5 ${!isOnline ? 'text-slate-400' : 'text-emerald-400'}`}>
+                        {state.icon}
+                    </div>
+                    <div>
+                        <p className="font-bold text-white text-base">{isOnline ? 'Conectado' : 'Desconectado'}</p>
+                        <p className="text-xs text-gray-400">{isOnline ? 'Conexión estable' : 'Revisando red...'}</p>
+                    </div>
                 </div>
 
                 {pendingCount !== undefined && pendingCount > 0 && (
-                    <div className="mt-2 pt-2 border-t border-slate-600">
-                        <p className="text-orange-300 font-medium">
-                            {pendingCount} inspección{pendingCount > 1 ? 'es' : ''} por sincronizar
-                        </p>
-                        <p className="text-gray-400 text-xs mt-1">
-                            Se sincronizarán automáticamente al reconectar
+                    <div className="space-y-3">
+                        <div className="flex justify-between text-xs text-orange-300 font-medium tracking-wide uppercase">
+                            <span>Sincronización</span>
+                            <span>{pendingCount} {pendingCount === 1 ? 'item' : 'items'}</span>
+                        </div>
+                        <div className="h-2 bg-slate-800 rounded-full overflow-hidden ring-1 ring-white/10">
+                            <div className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full w-2/3 animate-pulse"></div>
+                        </div>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                            Se guardaron tus datos localmente. Se subirán automáticamente al recuperar la conexión.
                         </p>
                     </div>
                 )}
 
                 {isOnline && (!pendingCount || pendingCount === 0) && (
-                    <p className="text-green-300 text-xs mt-1">
-                        ✅ Todas las inspecciones están sincronizadas
-                    </p>
+                    <div className="flex items-center gap-2 text-sm text-emerald-400 font-medium bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Todo sincronizado</span>
+                    </div>
                 )}
             </div>
         </div>
