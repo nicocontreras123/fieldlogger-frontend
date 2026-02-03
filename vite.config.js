@@ -49,5 +49,12 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
+    host: true, // Listen on all addresses
+  },
+  preview: {
+    allowedHosts: [
+      'fieldlogger-frontend-production.up.railway.app',
+      '.railway.app' // Allow all railway subdomains
+    ],
   },
 });
