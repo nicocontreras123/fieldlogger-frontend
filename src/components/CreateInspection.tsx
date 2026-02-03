@@ -1,5 +1,6 @@
 import { useActionState } from 'react';
 import { db } from '../lib/db';
+import { syncPendingInspections } from '../lib/sync-engine';
 
 /**
  * CreateInspection Component - React 19 with Actions
@@ -51,6 +52,11 @@ async function createInspectionAction(
         await db.inspections.add(inspection);
 
         console.log('✅ Inspection saved locally:', inspection.id);
+
+        // Try to sync immediately if online, otherwise the background job will handle it
+        if (navigator.onLine) {
+            syncPendingInspections().catch(console.error);
+        }
 
         // The sync engine will handle backend sync automatically
         return {

@@ -8,7 +8,7 @@ import { db, Inspection } from './db';
  */
 
 // Use environment variable for API URL (Railway compatible)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = (import.meta as unknown as { env: { VITE_API_URL?: string } }).env?.VITE_API_URL || 'http://localhost:3000';
 
 /**
  * Sync a single inspection to the backend
