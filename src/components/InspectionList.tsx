@@ -40,8 +40,8 @@ export default function InspectionList() {
     if (inspections.length === 0) {
         return (
             <div className="text-center py-12 text-gray-400">
-                <p className="text-lg">No inspections yet</p>
-                <p className="text-sm mt-2">Create your first inspection above</p>
+                <p className="text-lg">No hay inspecciones aún</p>
+                <p className="text-sm mt-2">Crea tu primera inspección arriba</p>
             </div>
         );
     }
@@ -51,10 +51,10 @@ export default function InspectionList() {
     return (
         <div className="max-w-2xl mx-auto p-6">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-white">Inspections</h2>
+                <h2 className="text-2xl font-bold text-white">Inspecciones</h2>
                 {pendingCount > 0 && (
                     <span className="px-3 py-1 bg-yellow-900/50 text-yellow-200 rounded-full text-sm">
-                        {pendingCount} pending sync
+                        {pendingCount} pendiente{pendingCount > 1 ? 's' : ''} de sincronizar
                     </span>
                 )}
             </div>
@@ -68,22 +68,22 @@ export default function InspectionList() {
                         <div className="flex items-start justify-between mb-3">
                             <div>
                                 <h3 className="text-lg font-semibold text-white">{inspection.location}</h3>
-                                <p className="text-sm text-gray-400">by {inspection.technician}</p>
+                                <p className="text-sm text-gray-400">por {inspection.technician}</p>
                             </div>
                             <span
                                 className={`px-2 py-1 rounded text-xs font-medium ${inspection.status === 'synced'
-                                        ? 'bg-green-900/50 text-green-200'
-                                        : 'bg-yellow-900/50 text-yellow-200'
+                                    ? 'bg-green-900/50 text-green-200'
+                                    : 'bg-yellow-900/50 text-yellow-200'
                                     }`}
                             >
-                                {inspection.status}
+                                {inspection.status === 'synced' ? 'Sincronizado' : 'Pendiente'}
                             </span>
                         </div>
                         <p className="text-gray-300 mb-3">{inspection.findings}</p>
                         <div className="text-xs text-gray-500">
-                            Created: {new Date(inspection.createdAt).toLocaleString()}
+                            Creado: {new Date(inspection.createdAt).toLocaleString('es-ES')}
                             {inspection.syncedAt && (
-                                <> • Synced: {new Date(inspection.syncedAt).toLocaleString()}</>
+                                <> • Sincronizado: {new Date(inspection.syncedAt).toLocaleString('es-ES')}</>
                             )}
                         </div>
                     </div>
