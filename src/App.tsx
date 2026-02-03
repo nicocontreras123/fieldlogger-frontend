@@ -5,7 +5,9 @@ import InspectionList from './components/InspectionList';
 import RealtimeInspections from './components/RealtimeInspections';
 import NetworkStatusBadge from './components/NetworkStatusBadge';
 import HelpModal from './components/HelpModal';
+import ReloadPrompt from './components/ReloadPrompt';
 import { startSyncEngine } from './lib/sync-engine';
+
 import './index.css';
 
 /**
@@ -45,6 +47,10 @@ function App() {
                 {/* Help Modal */}
                 <HelpModal />
 
+                {/* PWA Update Prompt */}
+                <ReloadPrompt />
+
+
                 <header className="bg-slate-900 border-b border-slate-700">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
                         {/* Mobile: Stack vertically, Desktop: Side by side */}
@@ -56,17 +62,16 @@ function App() {
                                 </h1>
                                 <p className="text-gray-400 text-sm mt-1">Registro de Inspecciones Offline-First</p>
                             </div>
-                            
+
                             {/* Navigation Tabs */}
                             <nav className="flex bg-slate-800 rounded-lg p-1 self-start lg:self-auto">
                                 <NavLink
                                     to="/"
                                     end
                                     className={({ isActive }) =>
-                                        `px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-                                            isActive
-                                                ? 'bg-blue-600 text-white'
-                                                : 'text-gray-400 hover:text-white'
+                                        `px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${isActive
+                                            ? 'bg-blue-600 text-white'
+                                            : 'text-gray-400 hover:text-white'
                                         }`
                                     }
                                 >
@@ -77,10 +82,9 @@ function App() {
                                 <NavLink
                                     to="/live"
                                     className={({ isActive }) =>
-                                        `px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${
-                                            isActive
-                                                ? 'bg-green-600 text-white'
-                                                : 'text-gray-400 hover:text-white'
+                                        `px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${isActive
+                                            ? 'bg-green-600 text-white'
+                                            : 'text-gray-400 hover:text-white'
                                         }`
                                     }
                                 >
@@ -109,8 +113,8 @@ function App() {
                     </p>
                     <p className="mt-1 text-xs">
                         <NavLink to="/live" className={({ isActive }) => isActive ? 'text-green-400' : 'text-gray-500'}>
-                            {({ isActive }) => isActive 
-                                ? '🔴 Conectado en tiempo real vía Server-Sent Events' 
+                            {({ isActive }) => isActive
+                                ? '🔴 Conectado en tiempo real vía Server-Sent Events'
                                 : '💾 Modo offline-first con sincronización periódica'}
                         </NavLink>
                     </p>
